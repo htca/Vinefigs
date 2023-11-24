@@ -18,4 +18,5 @@ M =
 $`\begin{matrix} 3 & 3 & 5 & 4 & 7 & 6 & 8 & 8 \\ 2 & 5 & 4 & 7 & 6 & 8 & 6 & 0 \\ 5 & 4 & 7 & 6 & 8 & 7 & 0 & 0 \\ 4 & 7 & 6 & 8 & 4 & 0 & 0 & 0 \\ 7 & 6 & 8 & 5 & 0 & 0 & 0 & 0 \\ 6 & 8 & 3 & 0 & 0 & 0 & 0 & 0 \\8 & 2 & 0 & 0 & 0 & 0 & 0 & 0 \\ 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \end{matrix}`$
 
 Example picture for 8 nodes:
+
 ![8 noded vine example](8%20nodes.png "Diagram Title")
