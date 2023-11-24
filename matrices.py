@@ -67,6 +67,18 @@ def check_node_edge(edge, node):
         if not str(l) in edge:
             node_in_edge = False
     return node_in_edge
+def check_matrix(matrix):
+    n = matrix.shape[0]
+    # Extracting the bottom right triangle below the diagonal
+    is_bottom_right_triangle_zero = True
+    for i in range(n - 1, 0, -1):  # Starting from the second-to-last row
+        for j in range(n - i, n):
+            if matrix[i][j] != 0:
+                is_bottom_right_triangle_zero = False
+                break
+        if not is_bottom_right_triangle_zero:
+            break
+    return is_bottom_right_triangle_zero
 
 def create_trees(mat, title, filename=None):
     if len(mat[0]) < 4 or len(mat[0]) > 8:
@@ -75,6 +87,8 @@ def create_trees(mat, title, filename=None):
         writefile = False
     else:
         writefile = True
+    if not check_matrix(mat):
+        raise ValueError("Matrix invalid, it should have lower triangle to 0. \nYou specified: \n {}".format(mat))
 
     n_col = 2
     n_row = math.ceil((len(mat[0])-1)/n_col)
