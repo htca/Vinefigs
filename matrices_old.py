@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math
 
+
 def get_vine(vine):
     eq_vines = [[(1,2)],
         [(1,2),(2,3)],
@@ -61,6 +62,7 @@ def get_vine(vine):
         if nx.is_isomorphic(vine,h): return title
     raise ValueError("Matrix is not a regular vine")
     return False
+
 def check_node_edge(edge, node):
     node_in_edge = True
     for l in list(node):
@@ -121,6 +123,7 @@ def create_trees(mat, title, filename=None):
             edges = []
             for ed in matpart:
                 edges.append(''.join(sorted(list(str(ed[0]) + str(ed[1])) )) + "|" + ''.join(sorted(list([str(x) for x in ed[2:]]))  ))
+
             n_edges =[]
             for ed in edges:
                 p = 0
@@ -132,6 +135,8 @@ def create_trees(mat, title, filename=None):
                         else:
                             node2 = n
                             n_edges.append([str(node1),str(node2)])
+
+
             g = nx.Graph()
             g.add_edges_from(n_edges)
             vine = get_vine(g)
