@@ -1,3 +1,5 @@
+from typing import List
+
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -119,7 +121,9 @@ def get_latex(latexlib, inipos = None):
     else:
         xs = np.array([inipos[key][0] for key in inipos])
         ys = np.array([inipos[key][1] for key in inipos])
-        xx, yy = get_first_tree_pos(xs,ys)
+        xx = xs * 2 + 1
+        yy = ys + 1
+        # xx, yy = get_first_tree_pos(xs,ys)
         pos = {}
         for i_nod, nod in enumerate(inipos.keys()):
             pos[str(nod)] = [xx[i_nod], yy[i_nod]]
@@ -146,8 +150,11 @@ def get_latex(latexlib, inipos = None):
             factor = 0
             firstnod = arrs[0]
             secnod = arrs[-1]
-
-            latex_string += '\\ar@/_{}pc/@{{-}}"{},{}";"{},{}"_{{\\txt{{\\footnotesize ${}$}}}}="{}"\n'.format(factor, pos[firstnod][1], pos[firstnod][0], pos[secnod][1], pos[secnod][0],arrs,nicks[arrs])
+            loc_1 = pos[firstnod][0]
+            loc_2 = pos[secnod][0]
+            dist = int((abs(loc_1 - loc_2) - 2 ) / 2)
+            print(dist, loc_1, firstnod, loc_2, secnod)
+            latex_string += '\\ar@/^{}pc/@{{-}}"{},{}";"{},{}"^{{\\txt{{\\footnotesize ${}$}}}}="{}"\n'.format(dist*5, pos[firstnod][1], pos[firstnod][0], pos[secnod][1], pos[secnod][0],arrs,nicks[arrs])
     for nod in multinodes:
         #are there any edges:
         if len(latexlib[nod]) > 0:
@@ -156,7 +163,8 @@ def get_latex(latexlib, inipos = None):
                 for nod2 in [x for x in multinodes if len(x) == len(nod) and nod != x]:
                     if all(element in re.split(',|\|', arr) for element in re.split(',|\|', nod2)):
                         factor = random.randint(2, 4)
-                        latex_string += '\\ar@/_{}pc/@{{-}}"{}";"{}"^{{\\txt{{\\footnotesize ${{{}}}$}}}}="{}"\n'.format(factor,nicks[nod], nicks[nod2], arr, nicks[arr])
+                        factor = 5
+                        latex_string += '\\ar@/_{}pc/@{{-}}"{}";"{}"_{{\\txt{{\\footnotesize ${{{}}}$}}}}="{}"\n'.format(factor,nicks[nod], nicks[nod2], arr, nicks[arr])
 
     latex_string += "}\n\end{displaymath} \n\\end{minipage}\hfill\n\\end{center}\n\\end{figure}\n"
     return latex_string
@@ -315,11 +323,92 @@ if __name__ == "__main__":
                                 [8, 2, 0, 0, 0, 0, 0, 0],
                                 [1, 0, 0, 0, 0, 0, 0, 0]
                                 ])
+
+    matrices = {}
+    matrices['8 nodes-1'] = np.array([[1, 5, 1, 5, 5, 5, 3, 3],
+                                      [5, 1, 5, 2, 2, 3, 5, 0],
+                                      [8, 6, 2, 4, 3, 2, 0, 0],
+                                      [6, 2, 4, 3, 4, 0, 0, 0],
+                                      [2, 4, 3, 1, 0, 0, 0, 0],
+                                      [4, 3, 6, 0, 0, 0, 0, 0],
+                                      [3, 8, 0, 0, 0, 0, 0, 0],
+                                      [7, 0, 0, 0, 0, 0, 0, 0]])
+    matrices['8 nodes-2'] = np.array([[2, 6, 7, 2, 4, 4, 8, 8],
+                                      [4, 2, 4, 4, 2, 8, 4, 0],
+                                      [6, 4, 2, 8, 8, 2, 0, 0],
+                                      [5, 8, 8, 7, 7, 0, 0, 0],
+                                      [8, 7, 6, 6, 0, 0, 0, 0],
+                                      [7, 1, 1, 0, 0, 0, 0, 0],
+                                      [1, 5, 0, 0, 0, 0, 0, 0],
+                                      [3, 0, 0, 0, 0, 0, 0, 0]])
     figs = {}
     for key in matrices.keys():
         if "8" in key or 1==1:
             figs[key], latexlib, inipos = create_trees(matrices[key], "{} treestructure".format(key), filename= key)
-            tt = get_latex(latexlib, inipos)
+            sort_arrays = sorted(latexlib, key=len)[::-1]
+            nodesorder: list[str] = []
+            nodesorder.append(sort_arrays[0].split("|")[0].split(",")[0])
+            nodesorder.append(sort_arrays[0].split("|")[0].split(",")[1])
+
+            new_arr = [x for x in sort_arrays if len(x) == 3]
+
+            i1 = 0
+            i2 = 1
+            while len(nodesorder) < len(matrices[key][0]):
+                ininode = nodesorder[i1]
+                ininode2 = nodesorder[i2]
+                found1 = False
+                found2 = False
+                for arr in new_arr:
+                    if ininode in arr:
+                        nodes = arr.split(",")
+                        if not (nodes[0] in nodesorder) or not( nodes[1] in nodesorder):
+                            if nodes[0] == ininode:
+                                nodesorder.append(nodes[1])
+                            else:
+                                nodesorder.append(nodes[0])
+                            found1 = True
+                            break
+                for arr in new_arr:
+                    if ininode2 in arr:
+                        nodes = arr.split(",")
+                        if not (nodes[0] in nodesorder) or not (nodes[1] in nodesorder):
+                            if nodes[0] == ininode2:
+                                nodesorder.append(nodes[1])
+                            else:
+                                nodesorder.append(nodes[0])
+                            found2 = True
+                            break
+                if not found1:
+                    i1 +=2
+                if not found2:
+                    i2 +=2
+
+            for key in sort_arrays:
+                for node in key.split("|")[0].split(","):
+                    if not node in nodesorder:
+                        nodesorder.append(node)
+
+            length = len(nodesorder)
+
+            # Initialize the new array
+            new_array = [None] * length
+            new_array[0] = nodesorder[0]
+            new_array[-1] = nodesorder[1]
+            # Assign elements to the new array according to the described pattern
+            for i in range(2,length):
+                if i % 2 == 1:
+                    new_array[length - int((i - 1) / 2) - 1] = nodesorder[i]
+                else:
+                    new_array[int(i / 2)] = nodesorder[i]
+
+                # Print the new array
+
+            new_inipos = {}
+            for x, i in enumerate(new_array):
+                new_inipos[i] = (x, 0)
+
+            tt = get_latex(latexlib, new_inipos)
             print(tt)
 
 
